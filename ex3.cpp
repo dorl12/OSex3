@@ -209,23 +209,23 @@ void screenManager() {
 int main(int argc, char *argv[])
 {
     string line;
-    vector<string> conFileLines;
+    vector<int> conFileLines;
     ifstream MyReadFile(argv[1]);
     while (getline(MyReadFile, line)) {
         if(line == "\r") {
             continue;
         }
-        conFileLines.push_back(line);
+        conFileLines.push_back(stoi(line));
     }
     MyReadFile.close();
-    int numOfProducers = (conFileLines.size() - 1) / 3;
-    int editorQueueSize = stoi(conFileLines[conFileLines.size() - 1]);
+    unsigned numOfProducers = (conFileLines.size() - 1) / 3;
+    int editorQueueSize = conFileLines[conFileLines.size() - 1];
     producerArgs producerArgsArray[numOfProducers];
     int j = 0;
     for(int i = 0; i < numOfProducers; i++) {
-        producerArgsArray[i].producerIndex = stoi(conFileLines[j]);
-        producerArgsArray[i].numOfNews = stoi(conFileLines[j + 1]);
-        producerArgsArray[i].queueSize = stoi(conFileLines[j + 2]);
+        producerArgsArray[i].producerIndex = conFileLines[j];
+        producerArgsArray[i].numOfNews = conFileLines[j + 1];
+        producerArgsArray[i].queueSize = conFileLines[j + 2];
         j += 3;
     }
     BoundedQueue* bq;
