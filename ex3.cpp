@@ -1,3 +1,5 @@
+// Dor Levy 313547085
+// The program supports Configuration File Option 2
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -195,6 +197,7 @@ void screenManager() {
     string news;
     while (1) {
         if(doneCounter == 3) {
+            cout << "DONE\n";
             return;
         }
         news = mixedQueue->dequeue();
@@ -233,22 +236,22 @@ int main(int argc, char *argv[])
     for (int i = 0; i < numOfProducers; i++) {
         bq = new BoundedQueue(producerArgsArray[i].queueSize);
         queueArray.push_back(bq);
-        pthread_create(&producerThreadsArray[i], NULL, reinterpret_cast<void *(*)(void *)>(producer),
+        pthread_create(&producerThreadsArray[i], nullptr, reinterpret_cast<void *(*)(void *)>(producer),
                        (void*)&producerArgsArray[i]);
     }
     pthread_t dispatcherThread;
-    pthread_create(&dispatcherThread, NULL, reinterpret_cast<void *(*)(void *)>(dispatcher),
+    pthread_create(&dispatcherThread, nullptr, reinterpret_cast<void *(*)(void *)>(dispatcher),
                    (void *)&numOfProducers);
     mixedQueue = new BoundedQueue(editorQueueSize);
     pthread_t editorThreadsArray[3];
     int editorsIndex[3] = {0 ,1, 2};
     for (int i = 0; i < 3; i++) {
-        pthread_create(&editorThreadsArray[i], NULL, reinterpret_cast<void *(*)(void *)>(editor),
+        pthread_create(&editorThreadsArray[i], nullptr, reinterpret_cast<void *(*)(void *)>(editor),
                        (void *)(void*)&editorsIndex[i]);
     }
     pthread_t screenManagerThread;
-    pthread_create(&screenManagerThread, NULL, reinterpret_cast<void *(*)(void *)>(screenManager), nullptr);
-    pthread_join(screenManagerThread, NULL);
+    pthread_create(&screenManagerThread, nullptr, reinterpret_cast<void *(*)(void *)>(screenManager), nullptr);
+    pthread_join(screenManagerThread, nullptr);
     return 0;
 }
 
