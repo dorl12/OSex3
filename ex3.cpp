@@ -81,7 +81,7 @@ public:
 };
 
 void producer(void* structOfArgs) {
-    struct producerArgs *args = (struct producerArgs *)structOfArgs;
+    auto *args = (struct producerArgs *)structOfArgs;
     int sportsCounter = 0;
     int newsCounter = 0;
     int weatherCounter = 0;
@@ -110,7 +110,7 @@ void producer(void* structOfArgs) {
 }
 
 void dispatcher(void* numOfProducersArg) {
-    int *numOfProducers = (int *)numOfProducersArg;
+    int numOfProducers = *(int *)numOfProducersArg;
     s = new UnboundedQueue();
     n = new UnboundedQueue();
     w = new UnboundedQueue();
@@ -118,14 +118,14 @@ void dispatcher(void* numOfProducersArg) {
     string weatherString = "WEATHER";
     string newsString = "NEWS";
     int doneCounter = 0;
-    bool producerQueueHasFinished[*numOfProducers];
+    bool producerQueueHasFinished[numOfProducers];
     string news;
-    for (int i = 0; i < *numOfProducers; i++) {
+    for (int i = 0; i < numOfProducers; i++) {
         producerQueueHasFinished[i] = false;
     }
     while(1) {
-        for (int i = 0; i < *numOfProducers; i++) {
-            if (doneCounter == *numOfProducers) {
+        for (int i = 0; i < numOfProducers; i++) {
+            if (doneCounter == numOfProducers) {
                 break;
             }
             if (!producerQueueHasFinished[i]) {
@@ -148,7 +148,7 @@ void dispatcher(void* numOfProducersArg) {
                 n->enqueue(news);
             }
         }
-        if (doneCounter == *numOfProducers) {
+        if (doneCounter == numOfProducers) {
             s->enqueue(to_string(-1));
             n->enqueue(to_string(-1));
             w->enqueue(to_string(-1));
@@ -158,10 +158,10 @@ void dispatcher(void* numOfProducersArg) {
 }
 
 void editor(void* indexArg) {
-    int *editorIndex = (int *)indexArg;
+    int editorIndex = *(int *)indexArg;
     string news;
     while(1) {
-        switch (*editorIndex) {
+        switch (editorIndex) {
             case 0:
                 news = s->dequeue();
                 if (news == to_string(-1)) {
@@ -234,15 +234,18 @@ int main(int argc, char *argv[])
     BoundedQueue* bq;
     pthread_t producerThreadsArray[numOfProducers];
     for (int i = 0; i < numOfProducers; i++) {
+        //BoundedQueue* bq;
         bq = new BoundedQueue(producerArgsArray[i].queueSize);
         queueArray.push_back(bq);
         pthread_create(&producerThreadsArray[i], nullptr, reinterpret_cast<void *(*)(void *)>(producer),
-                       (void*)&producerArgsArray[i]);
+                       (void *)&producerArgsArray[i]);
     }
+    usleep(50000);
     pthread_t dispatcherThread;
     pthread_create(&dispatcherThread, nullptr, reinterpret_cast<void *(*)(void *)>(dispatcher),
                    (void *)&numOfProducers);
     mixedQueue = new BoundedQueue(editorQueueSize);
+    usleep(50000);
     pthread_t editorThreadsArray[3];
     int editorsIndex[3] = {0 ,1, 2};
     for (int i = 0; i < 3; i++) {
